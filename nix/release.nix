@@ -1,25 +1,29 @@
 { name ? "foobar" }:
 let
   nixpkgs = import ./nixpkgs.nix {
-    overlays = [nixpkgsOverlay];
+    overlays = [
+      (final: prev: {
+        myHaskellPackages = final.haskellPackages.override (old: {
+          overrides = final.lib.composeExtensions (old.overrides or (_: _: {})) haskellPkgsOverlay;
+        });
+      })
+    ];
   };
 
-  nixpkgsOverlay = (final: prev: {
-    myHaskellPackages = final.haskellPackages.override (old: {
-      overrides = final.lib.composeExtensions (old.overrides or (_: _: {})) haskellPkgsOverlay;
-    });
-  });
-
   haskellPkgsOverlay = (final: prev: {
-    foobar = final.callCabal2nix "foobar" ./.. {};
+    project = final.callCabal2nix name ./.. {};
   });
 
-  devTools = with nixpkgs; [
-    cabal-install
-    haskell-language-server
-  ];
+  inherit (nixpkgs.myHaskellPackages) project;
 in
   {
-    inherit nixpkgs;
-    project = nixpkgs.myHaskellPackages.foobar;
+    inherit nixpkgs project;
+    inherit (project) env;
+
+    docker = nixpkgs.dockerTools.buildImage {
+      name       = "${project.pname}-image";
+      tag        = "latest";
+      contents   = with nixpkgs; [ project ];
+      config.Cmd = ["/bin/${project.pname}"];
+    };
   }

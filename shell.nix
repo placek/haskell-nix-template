@@ -5,6 +5,6 @@ let
     haskell-language-server
   ];
 in
-  drv.project.env.overrideAttrs (oldEnv: {
+  drv.env.overrideAttrs (oldEnv: {
     nativeBuildInputs = oldEnv.nativeBuildInputs ++ devTools;
   })

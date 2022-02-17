@@ -25,3 +25,4 @@ test-suite foobar-test
     hs-source-dirs:   test
     main-is:          FooBarTest.hs
     build-depends:    base ^>=4.14.1.0
+                    , foobar
