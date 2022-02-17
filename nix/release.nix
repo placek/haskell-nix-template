@@ -21,12 +21,11 @@ in
     inherit (project) env;
 
     docker = nixpkgs.dockerTools.buildImage {
-      name       = "${project.pname}-image";
-      tag        = "latest";
-      contents   = with nixpkgs; [
+      name     = project.pname;
+      tag      = project.version;
+      contents = with nixpkgs; [
         (haskell.lib.justStaticExecutables project)
         busybox
       ];
-      config.Cmd = ["/bin/${project.pname}"];
     };
   }
