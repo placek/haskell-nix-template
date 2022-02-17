@@ -23,7 +23,10 @@ in
     docker = nixpkgs.dockerTools.buildImage {
       name       = "${project.pname}-image";
       tag        = "latest";
-      contents   = with nixpkgs; [ project ];
+      contents   = with nixpkgs; [
+        (haskell.lib.justStaticExecutables project)
+        busybox
+      ];
       config.Cmd = ["/bin/${project.pname}"];
     };
   }
