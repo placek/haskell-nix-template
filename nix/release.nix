@@ -15,6 +15,15 @@ let
   });
 
   inherit (nixpkgs.myHaskellPackages) project;
+
+  entrypoint = nixpkgs.stdenv.mkDerivation rec {
+    name         = "entrypoint-for-image";
+    src          = ./.;
+    installPhase = ''
+      mkdir -p $out/bin
+      cp entrypoint $out/bin
+    '';
+  };
 in
   {
     inherit nixpkgs project;
@@ -27,5 +36,20 @@ in
         (haskell.lib.justStaticExecutables project)
         busybox
       ];
+    };
+
+    docker-ci = nixpkgs.dockerTools.buildImage {
+      name     = "${project.pname}-ci";
+      tag      = project.version;
+      contents = with nixpkgs; [
+        project
+        entrypoint
+        bash
+        cabal-install
+        coreutils
+        haskellPackages.hlint
+        haskellPackages.stylish-haskell
+      ];
+      config.Entrypoint = [ "${entrypoint}/bin/entrypoint" ];
     };
   }
