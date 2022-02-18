@@ -3,9 +3,9 @@ module Main (main) where
 import FooBar (fooBar)
 import Test.QuickCheck
 
-prop_reverse :: [Int] -> Bool
-prop_reverse xs = reverse (reverse xs) == xs
+prop_fooBar :: String -> Bool
+prop_fooBar x = fooBar x == "Hello " ++ x
 
 main :: IO ()
 main = do
-  quickCheck (withMaxSuccess 10000 prop_reverse)
+  quickCheck prop_fooBar
