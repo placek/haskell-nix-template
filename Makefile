@@ -1,7 +1,7 @@
 all:
 	cabal build all
 
-test:
+specs:
 	cabal test
 
 clean:
